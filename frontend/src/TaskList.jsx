@@ -1,7 +1,8 @@
 import React from "react"
 
 const TaskList = ({ tasks, updateTask, updateCallback }) => {
-
+    
+    let completedTasks = []
 
     const onDelete = async (id) => {
         try {
@@ -31,7 +32,12 @@ const TaskList = ({ tasks, updateTask, updateCallback }) => {
                 </tr>
             </thead>
             <tbody>
-                {tasks.map((task) => (
+                { tasks.map((task)=>{
+                    if(task.completed){
+                        completedTasks.push(task)
+                    }
+                })}
+                {completedTasks.map((task) => (
                     <tr key={task.id}>
                         <td>{task.taskCategory}</td>
                         <td>{task.startTime}</td>

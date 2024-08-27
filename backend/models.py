@@ -9,6 +9,7 @@ class Task(db.Model):
     task_category = db.Column(db.String(80), unique=False, nullable=False)
     start_time = db.Column(db.Integer(), unique=False, nullable=False)
     end_time = db.Column(db.Integer(), unique=False, nullable=False)
+    completed = db.Column(db.Boolean(), unique=False, nullable=False)
     #first_name = db.Column(db.String(80), unique=False, nullable=False)
     #last_name = db.Column(db.String(80), unique=False, nullable=False)
     #email = db.Column(db.String(120), unique=True, nullable=False)
@@ -21,4 +22,5 @@ class Task(db.Model):
             "taskCategory": self.task_category,
             "startTime": self.start_time,
             "endTime": self.end_time,
+            "completed": self.completed
         }

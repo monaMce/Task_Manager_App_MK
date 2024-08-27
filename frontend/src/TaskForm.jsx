@@ -4,9 +4,11 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
     const [taskCategory, setTaskCategory] = useState(existingTask.taskCategory || "");
     const [startTime, setStartTime] = useState(existingTask.startTime || "");
     const [endTime, setEndTime] = useState(existingTask.endTime || "");
+    const [completed, setCompleted] = useState(existingTask.completed || "")
 
     let categories = new Set()
     let categoryArray = []
+    let thisValue = false
 
     const updating = Object.entries(existingTask).length !== 0
 
@@ -16,7 +18,8 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
         const data = {
             taskCategory,
             startTime,
-            endTime
+            endTime,
+            completed
         }
         const url = "http://127.0.0.1:5000/" + (updating ? `update_task/${existingTask.id}` : "create_task")
         const options = {
@@ -79,10 +82,25 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
                 />
             </div>
             <div>
-                <label htmlFor="actual">Is this the actual amount of time that you spent?</label>
-                <input type="checkbox"/>
+                <label htmlFor="completed">Check this box if you've already completed the task you are adding</label>
+                <input 
+                    type="checkbox" 
+                    id="completed" 
+                    name="completed" 
+                    value="True"
+                />
             </div>
-            <button type="submit">{updating ? "Update" : "Create"}</button>
+            <button 
+            type="submit"
+            onClick={(e) => {
+                if(document.getElementById("completed").checked){
+                    thisValue = true
+                }else{
+                    thisValue = false
+                }
+                setCompleted(thisValue)
+            }}
+            >{updating ? "Update" : "Create"}</button>
         </form>
     );
 };
