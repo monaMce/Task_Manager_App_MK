@@ -46,14 +46,15 @@ def create_task():
     start_time = request.json.get("startTime")
     end_time = request.json.get("endTime")
     completed = request.json.get("completed")
+    date = request.json.get("date")
 
-    if not task_category or not start_time or not end_time:
+    if not task_category or not start_time or not end_time or not date:
         return (
-            jsonify({"message": "You must include a task category, start time, end time, and completion status"}),
+            jsonify({"message": "You must include a task category, start time, end time, completion status, and date"}),
             400,
         )
 
-    new_task = Task(task_category=task_category, start_time=start_time, end_time=end_time, completed=completed)
+    new_task = Task(task_category=task_category, start_time=start_time, end_time=end_time, completed=completed, date=date)
     try:
         #makes new contact read to write into the database
         db.session.add(new_task)
@@ -82,6 +83,7 @@ def update_task(task_id):
     task.start_time = data.get("startTime", task.start_time)
     task.end_time = data.get("endTime", task.end_time)
     task.completed = data.get("completed", task.completed)
+    task.date = data.get("date", task.date)
 
     #Don't need to add to session because this contact already existed
     #commits the changes to the database session

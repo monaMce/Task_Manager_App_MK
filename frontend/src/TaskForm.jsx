@@ -5,6 +5,7 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
     const [startTime, setStartTime] = useState(existingTask.startTime || "");
     const [endTime, setEndTime] = useState(existingTask.endTime || "");
     const [completed, setCompleted] = useState(existingTask.completed || "")
+    const [date, setDate] = useState(existingTask.date || "")
 
     let categories = new Set()
     let categoryArray = []
@@ -19,7 +20,8 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
             taskCategory,
             startTime,
             endTime,
-            completed
+            completed, 
+            date
         }
         const url = "http://127.0.0.1:5000/" + (updating ? `update_task/${existingTask.id}` : "create_task")
         const options = {
@@ -79,6 +81,18 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
                     required 
                     value={endTime} 
                     onChange={(e) => setEndTime(e.target.value)}
+                />
+            </div>
+            <div>
+                <label htmlFor="date">Date:</label>
+                <input 
+                    type="date" 
+                    id="date" 
+                    name="date" 
+                    value={date} 
+                    min="2024-07-01" 
+                    max="2045-12-31" 
+                    onChange={(e) => setDate(e.target.value)}
                 />
             </div>
             <div>

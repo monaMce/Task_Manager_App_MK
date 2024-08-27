@@ -3,6 +3,10 @@ import React from "react"
 const TaskList = ({ tasks, updateTask, updateCallback }) => {
     
     let completedTasks = []
+    let plannedTasks = []
+    let setDay = "2024-07-31"
+    let dayTasks = []
+    let rowIDs = []
 
     const onDelete = async (id) => {
         try {
@@ -20,9 +24,81 @@ const TaskList = ({ tasks, updateTask, updateCallback }) => {
         }
     }
 
+    const onDateUpdate = async(dateValue) =>{
+        try{
+            const options = {
+                method: "POST"
+            }
+            try{
+                //Grab the date that was filtered to
+                document.getElementById("day").value = dateValue
+                setDay = dateValue
+                document.getElementById("setDate").innerText = dateValue
+
+                //compile lists of tasks for that day
+                tasks.map((task)=>{
+                    if(task.date === dateValue){
+                        dayTasks.push(task)
+                        rowIDs.push(task.id)
+                        //console.log(dayTasks)
+                    }else if(dayTasks.includes(task)){
+                        dayTasks.pop(task)
+                    }
+                })
+
+                //compare all planned tasks to those for today's date, hide and unhide appropriate tasks
+                let plannedTable = document.getElementById("plannedTbody")
+                let tableLength = plannedTable.rows.length 
+                for (let i = 0; i < tableLength; i++){
+                    let rowID = plannedTable.getElementsByTagName("tr")[i].id
+                    if(!(rowIDs.includes(Number(rowID)))){
+                        plannedTable.getElementsByTagName("tr")[i].style.display = 'none' 
+                    }else{
+                        plannedTable.getElementsByTagName("tr")[i].style.display = ''
+                    }
+                }
+
+                //compare all planned tasks to those for today's date, hide and unhide appropriate tasks
+                let completedTable = document.getElementById("completedTbody")
+                tableLength = completedTable.rows.length 
+                for (let i = 0; i < tableLength; i++){
+                    let rowID = completedTable.getElementsByTagName("tr")[i].id
+                    if(!(rowIDs.includes(Number(rowID)))){
+                        completedTable.getElementsByTagName("tr")[i].style.display = 'none' 
+                    }else{
+                        completedTable.getElementsByTagName("tr")[i].style.display = ''
+                    }
+                }
+                updateCallback()
+            }catch{
+                console.error("Failed to update with date")
+                alert(error)
+            }
+
+        }catch(error){
+            alert(error)
+        }
+    }
+
     return <div>
-        <h2>Daily Tasks</h2>
-        <table>
+        <div>
+            <label htmlFor="day">Task List for Day:</label>
+            <input
+                type="date"
+                id="day"
+                name="day"
+                min="2024-07-01" 
+                max="2045-12-31"
+                onChange={(e)=>{
+                    console.log(document.getElementById("day").value)
+                    onDateUpdate(document.getElementById("day").value)
+                }}
+            />
+            <h3 id="setDate"></h3>
+         
+        </div>
+        <h2>Planned Tasks</h2>
+        <table id="plannedTasksTable">
             <thead>
                 <tr>
                     <th>Task</th>
@@ -31,14 +107,40 @@ const TaskList = ({ tasks, updateTask, updateCallback }) => {
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="plannedTbody">
                 { tasks.map((task)=>{
                     if(task.completed){
                         completedTasks.push(task)
+                    }else{
+                        plannedTasks.push(task)
                     }
                 })}
+                {plannedTasks.map((task) => (
+                    <tr key={task.id} id={task.id}>
+                        <td>{task.taskCategory}</td>
+                        <td>{task.startTime}</td>
+                        <td>{task.endTime}</td>
+                        <td>
+                            <button onClick={() => updateTask(task)}>Update</button>
+                            <button onClick={() => onDelete(task.id)}>Delete</button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+        <h2>Completed Tasks</h2>
+        <table id="completedTasksTable">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="completedTbody">
                 {completedTasks.map((task) => (
-                    <tr key={task.id}>
+                    <tr key={task.id} id={task.id}>
                         <td>{task.taskCategory}</td>
                         <td>{task.startTime}</td>
                         <td>{task.endTime}</td>
