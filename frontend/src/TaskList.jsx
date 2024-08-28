@@ -1,12 +1,13 @@
 import React from "react"
 
-const TaskList = ({ tasks, updateTask, updateCallback }) => {
+const TaskList = ({ tasks, updateTask, updateCallback, stats }) => {
     
     let completedTasks = []
     let plannedTasks = []
     let setDay = "2024-07-31"
     let dayTasks = []
     let rowIDs = []
+    let statKeys = []
 
     const onDelete = async (id) => {
         try {
@@ -69,6 +70,20 @@ const TaskList = ({ tasks, updateTask, updateCallback }) => {
                         completedTable.getElementsByTagName("tr")[i].style.display = ''
                     }
                 }
+
+                //hide all stat rows except the row selected
+                let statsTable = document.getElementById("statsTbody")
+                tableLength = statsTable.rows.length
+                for (let i = 0; i < tableLength; i++){
+                    let rowID = statsTable.getElementsByTagName("tr")[i].id
+                    if (rowID === dateValue){
+                        statsTable.getElementsByTagName("tr")[i].style.display = ''
+                    }else{
+                        statsTable.getElementsByTagName("tr")[i].style.display = 'none'
+                    }
+                    
+                }
+
                 updateCallback()
             }catch{
                 console.error("Failed to update with date")
@@ -148,6 +163,26 @@ const TaskList = ({ tasks, updateTask, updateCallback }) => {
                             <button onClick={() => updateTask(task)}>Update</button>
                             <button onClick={() => onDelete(task.id)}>Delete</button>
                         </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+        <h2>Stats</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Percent Completion</th>
+                </tr>
+            </thead>
+            <tbody id="statsTbody">
+                <script>
+                    {statKeys = Object.keys(stats)}
+                </script>
+                {statKeys.map((key) => (
+                    <tr id={key}>
+                        <td>{key}</td>
+                        <td>{stats[key]}</td>
                     </tr>
                 ))}
             </tbody>

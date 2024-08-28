@@ -7,9 +7,11 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentTask, setCurrentTask] = useState({})
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
-    fetchTasks()
+    fetchTasks(),
+    fetchStats()
   }, []);
 
   const fetchTasks = async () => {
@@ -36,11 +38,24 @@ function App() {
   const onUpdate = () => {
     closeModal()
     fetchTasks()
+    fetchStats()
   }
+
+  const fetchStats = async () => {
+    const options = {
+      method: "GET"
+    }
+    const response = await fetch("http://127.0.0.1:5000/stats", options);
+    console.log("Logging fetchStats response")
+    const data = await response.json();
+    console.log(data)
+    setStats(data.stats);
+    console.log(stats)
+  };
 
   return (
     <>
-      <TaskList tasks={tasks} updateTask={openEditModal} updateCallback={onUpdate} />
+      <TaskList tasks={tasks} updateTask={openEditModal} updateCallback={onUpdate} stats={stats} />
       <button onClick={openCreateModal}>Create New Task</button>
       {isModalOpen && <div className="modal">
         <div className="modal-content">

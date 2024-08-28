@@ -32,7 +32,7 @@ def get_tasks():
     #gives us a list of all the different contacts in python objects (contact objects)
     tasks = Task.query.all()
 
-    #calls to_json for each contact in contacts (x) and returns each result of this method in a map that we then convert into a list
+    #calls to_json for each task in tasks (x) and returns each result of this method in a map that we then convert into a list
     #to_json returns a python dictionary that can be converted into a json
     json_tasks = list(map(lambda x: x.to_json(), tasks))
 
@@ -48,9 +48,17 @@ def create_task():
     completed = request.json.get("completed")
     date = request.json.get("date")
 
+    temp_start = int(start_time.replace(":", ""))
+    temp_end = int(end_time.replace(":", ""))
+
     if not task_category or not start_time or not end_time or not date:
         return (
             jsonify({"message": "You must include a task category, start time, end time, completion status, and date"}),
+            400,
+        )
+    if temp_end < temp_start:
+        return (
+            jsonify({"message": "Please pick an end time after your start time"}),
             400,
         )
 
@@ -103,6 +111,54 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"message": "Task deleted!"}), 200
+
+@app.route("/stats", methods=["GET"])
+def get_stats():
+    tasks = Task.query.all()
+    planned_days = {}
+    completed_days = {}
+    stats = {}
+    for task in tasks:
+        numerical_end_time = (int(task.end_time[:2])*60) + int(task.end_time[3:])
+        numerical_start_time = (int(task.start_time[:2])*60) + int(task.start_time[3:])
+        if task.completed:
+            #completed
+            if task.date not in completed_days.keys():
+                completed_days[task.date] = {}
+
+            if task.task_category not in completed_days[task.date].keys():
+                completed_days[task.date][task.task_category] = (numerical_end_time - numerical_start_time)
+            else:
+                completed_days[task.date][task.task_category] += (numerical_end_time - numerical_start_time)
+        else:
+            #planned
+            if task.date not in planned_days.keys():
+                planned_days[task.date] = {}
+
+            if task.task_category not in planned_days[task.date].keys():
+                planned_days[task.date][task.task_category] = (numerical_end_time - numerical_start_time)
+            else:
+                planned_days[task.date][task.task_category] += (numerical_end_time - numerical_start_time)
+    for day, planned_tasks in planned_days.items():
+        accuracy_score = float(0)
+        count = 0
+        for task in planned_tasks:
+            if day in completed_days.keys():
+                if task in completed_days[day]:
+                    task_completion_rate = float(completed_days[day][task] / planned_days[day][task])
+                else:
+                    task_completion_rate = 0
+                accuracy_score += task_completion_rate
+            count +=1
+        accuracy_score = float(accuracy_score / count)
+        stats[day] = round(accuracy_score, 2) * 100
+    message = {
+        "status": 200,
+        "stats": stats
+    }
+    json_stats = jsonify(message)
+    return json_stats
+
 
 
 # makes sure we aren't running the file if we just import it rather than specifically choosing to run it

@@ -76,7 +76,7 @@ const TaskForm = ({ tasks, existingTask = {}, updateCallback }) => {
                     type="time" 
                     id="endTime" 
                     name="endTime" 
-                    min="00:00" 
+                    min="00:00"
                     max="23:59" 
                     required 
                     value={endTime} 
