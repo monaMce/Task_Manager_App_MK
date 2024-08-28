@@ -151,7 +151,7 @@ def get_stats():
                 accuracy_score += task_completion_rate
             count +=1
         accuracy_score = float(accuracy_score / count)
-        stats[day] = round(accuracy_score, 2) * 100
+        stats[day] = int(round(accuracy_score, 2) * 100)
     message = {
         "status": 200,
         "stats": stats
